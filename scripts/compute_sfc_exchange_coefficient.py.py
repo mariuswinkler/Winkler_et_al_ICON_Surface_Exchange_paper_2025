@@ -1,5 +1,5 @@
 #%%
-import functions as fn
+import src.functions as fn
 import numpy as np
 import matplotlib.pylab as plt
 import matplotlib.gridspec as gridspec

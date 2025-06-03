@@ -2,7 +2,7 @@
 # Functions
 
 import numpy as np
-import constants as c
+import src.constants as c
 
 def stability_function_mom(RIB, hz0, tc):
     if RIB >= 0:
