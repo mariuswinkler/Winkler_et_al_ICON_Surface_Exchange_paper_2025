@@ -66,6 +66,9 @@ This script loops over a range of wind speeds, calculates exchange coefficients,
 
 ## Relevant Literature
 
+- - **Segura, H. et al. (2024)**  
+  [*A single tropical rainbelt in global storm-resolving models: the role of surface heat fluxes over the warm pool*](https://doi.org/10.22541/essoar.173482210.07670254/v1), *ESS Open Archive*. December 21, 2024.
+
 - **Kitamura, Y., & Ito, J. (2016)**  
   [*Revisiting the Bulk Relation for Heat Flux in the Free Convection Limit*](https://doi.org/10.1007/s10546-015-0075-z), *Boundary-Layer Meteorology*, 158, 93–103.
 
