@@ -1,9 +1,26 @@
-# Functions
+# The following functions were originally implemented in Fortran as part of the ICON atmospheric model in mo_vdf_diag_smag.f90 under 
+# https://gitlab.dkrz.de/icon/icon-mpim/-/blob/master/src/atm_phy_aes/tmx/mo_vdf_diag_smag.f90?ref_type=heads
+# They have been translated to Python for scientific analysis and visualization.
+# The description of the functions have been added based on the interpretation of Marius Winkler.
 
 import numpy as np
 import src.constants as c
 
 def stability_function_mom(RIB, hz0, tc):
+    """
+    Computes the stability correction factor for momentum based on
+    Monin–Obukhov similarity theory.
+
+    Parameters
+    ----------
+    RIB : Bulk Richardson number.
+    hz0 : Ratio of height to roughness length (z / z0).
+    tc : First-guess transfer coefficient for momentum.
+
+    Returns
+    -------
+    stab_fun : Stability correction factor for momentum.
+    """
     if RIB >= 0:
         stab_fun = 1 / (1 + 10 * RIB * (1 + 8 * RIB))
     else:
@@ -12,6 +29,20 @@ def stability_function_mom(RIB, hz0, tc):
     return stab_fun
 
 def stability_function_heat(RIB, hzh, tc):
+    """
+    Computes the stability correction factor for heat using Monin–Obukhov
+    similarity theory.
+
+    Parameters
+    ----------
+    RIB : Bulk Richardson number.
+    hzh : Ratio of height to roughness length (z / zh).
+    tc : First-guess transfer coefficient for heat.
+
+    Returns
+    -------
+    stab_fun : Stability correction factor for heat.
+    """
     if RIB >= 0:
         stab_fun = 1 / (1 + 10 * RIB * (1 + 8 * RIB))
     else:
@@ -20,6 +51,19 @@ def stability_function_heat(RIB, hzh, tc):
     return stab_fun
 
 def businger_heat(z0, z1, L):
+    """
+    Computes the integrated Businger–Dyer stability correction function for heat.
+
+    Parameters
+    ----------
+    z0 : Roughness length [m].
+    z1 : Reference height [m].
+    L : Obukhov length [m].
+
+    Returns
+    -------
+    factor : Stability correction factor for heat transport.
+    """
     if L > 0:  # Stable
         zeta = z1 / L
         zeta0 = z0 / L
@@ -44,6 +88,19 @@ def businger_heat(z0, z1, L):
     return factor
 
 def businger_mom(z0, z1, L):
+    """
+    Computes the integrated Businger–Dyer stability correction function for momentum.
+
+    Parameters
+    ----------
+    z0 : Roughness length [m].
+    z1 : Reference height [m].
+    L : Obukhov length [m].
+
+    Returns
+    -------
+    factor : Stability correction factor for momentum transport.
+    """
     if L > 0:  # Stable
         zeta = z1 / L
         zeta0 = z0 / L
@@ -70,34 +127,58 @@ def businger_mom(z0, z1, L):
     return factor
 
 def sfc_exchange_coefficients(dz, pqm1, thetam1, mwind, rough_m, theta_sfc, qsat_sfc, min_wind_threshold=1.0):
+    """
+    Computes surface exchange coefficients for momentum and heat using
+    Monin–Obukhov similarity theory with iterative stability correction.
+
+    Parameters
+    ----------
+    dz : Reference height above ground [m].
+    pqm1 : Specific humidity at first model level.
+    thetam1 : Potential temperature at first model level [K].
+    mwind : Wind speed at the first model level [m/s].
+    rough_m : Roughness length for momentum [m].
+    theta_sfc : Surface potential temperature [K].
+    qsat_sfc : Saturation specific humidity at the surface.
+    min_wind_threshold (optional): Minimum wind speed to avoid instability (default is 1.0 m/s).
+
+    Returns
+    -------
+    cD : Exchange coefficient for momentum.
+    cH : Exchange coefficient for heat.
+    cD_neutral : Neutral-stability momentum exchange coefficient.
+    cH_neutral : Neutral-stability heat exchange coefficient.
+    RIB : Bulk Richardson number.
+    mwind : Possibly thresholded wind speed.
+    stab_func_mom_out : Stability correction factor for momentum.
+    stab_funkheat_out : Stability correction factor for heat.
+    """
     zepsec = 0.028
     zcons17 = 1.0 / c.ckap**2
 
     mwind = max(mwind, min_wind_threshold)
-    #mwind in ICON: https://gitlab.dkrz.de/icon/icon-mpim/-/blob/master/src/atm_phy_aes/tmx/mo_vdf_diag_smag.f90#L162
     z_mc = dz
-    # First guess for tch and tcm using bulk approach
+
     RIB = c.grav * (thetam1 - theta_sfc) * (z_mc - rough_m) / (theta_sfc * mwind**2)
     tcn_mom = (c.ckap / np.log(z_mc / rough_m))**2
     tcm = tcn_mom * stability_function_mom(RIB, z_mc / rough_m, tcn_mom)
     stab_func_mom_out = stability_function_mom(RIB, z_mc / rough_m, tcn_mom)
     
-    tcn_heat = c.ckap**2 / (np.log(z_mc / rough_m) * np.log(z_mc / rough_m))
+    tcn_heat = c.ckap**2 / (np.log(z_mc / rough_m)**2)
     tch = tcn_heat * stability_function_heat(RIB, z_mc / rough_m, tcn_heat)
     stab_funkheat_out = stability_function_heat(RIB, z_mc / rough_m, tcn_heat)
     
-    # Now iterate
     for itr in range(5):
         shfl_local = tch * mwind * (theta_sfc - thetam1)
         lhfl_local = tch * mwind * (qsat_sfc - pqm1)
         bflx1 = shfl_local + (c.vtmpc1 * theta_sfc * lhfl_local)
         ustar = np.sqrt(tcm) * mwind
 
-        obukhov_length = -ustar**3.0 * theta_sfc * c.rgrav / (c.ckap * bflx1)
+        obukhov_length = -ustar**3 * theta_sfc * c.rgrav / (c.ckap * bflx1)
 
         inv_bus_mom = 1.0 / businger_mom(rough_m, z_mc, obukhov_length)
         tch = inv_bus_mom / businger_heat(rough_m, z_mc, obukhov_length)
-        tcm = inv_bus_mom**2.0
+        tcm = inv_bus_mom**2
 
     cH = tch
     cD = tcm
