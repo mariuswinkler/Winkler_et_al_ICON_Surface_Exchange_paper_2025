@@ -54,10 +54,11 @@ The function mirrors the iterative procedure found in the ICON routine `sfc_exch
 
 ## Usage
 
-You can run the surface exchange coefficient computation via:
+You can run the original, unchanged ICON surface exchange coefficient computation via:
 
 ```bash
-python scripts/compute_sfc_exchange_coefficient.py
+python scripts/00_compute_original_sfc_exchange_coefficient.py
+python scripts/01_compute_scaling_sfc_exchange_coefficient.py
 ```
 
 This script loops over a range of wind speeds, calculates exchange coefficients, and generates corresponding plots for different wind thresholds and atmospheric conditions.

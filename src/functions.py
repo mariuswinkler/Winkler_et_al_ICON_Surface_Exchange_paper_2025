@@ -186,3 +186,103 @@ def sfc_exchange_coefficients(dz, pqm1, thetam1, mwind, rough_m, theta_sfc, qsat
     cD_neutral = c.ckap / max(zepsec, np.sqrt(tcn_mom))
 
     return cD, cH, cD_neutral, cH_neutral, RIB, mwind, stab_func_mom_out, stab_funkheat_out
+
+def sfc_exchange_coefficients_with_cH_boost(dz, pqm1, thetam1, mwind, rough_m, theta_sfc, qsat_sfc, scaling_factor, threshold_value, min_wind_threshold=1.0):
+    """
+    Computes surface exchange coefficients for momentum and heat using
+    Monin–Obukhov similarity theory, with additional scaling applied only to
+    the heat exchange coefficient (cH) based on wind speed.
+
+    Compared to the standard `sfc_exchange_coefficients` routine, this version
+    applies a smooth scaling function to `cH` to artificially increase (or decrease)
+    surface heat fluxes under weak-wind conditions. The momentum coefficient `cD`
+    remains unchanged.
+
+    Parameters
+    ----------
+    dz : Reference height above ground [m].
+    pqm1 : Specific humidity at the first model level [kg/kg].
+    thetam1 : Potential temperature at the first model level [K].
+    mwind : Wind speed at the first model level [m/s].
+    rough_m : Roughness length for momentum [m].
+    theta_sfc : Surface potential temperature [K].
+    qsat_sfc : Saturation specific humidity at the surface [kg/kg].
+    scaling_factor : Maximum multiplicative factor applied to `cH` under weakest wind conditions.
+    threshold_value : Wind speed threshold below which scaling of `cH` is applied.
+    min_wind_threshold (optional): Minimum wind speed to avoid numerical instability (default is 1.0 m/s).
+
+    Returns
+    -------
+    cD : Exchange coefficient for momentum.
+    cH : Exchange coefficient for heat (scaled at low wind speeds).
+    cD_neutral : Neutral-stability momentum exchange coefficient.
+    cH_neutral : Neutral-stability heat exchange coefficient.
+    RIB : Bulk Richardson number.
+    mwind : Possibly thresholded wind speed [m/s].
+    stab_func_mom_out : Stability correction factor for momentum.
+    stab_funkheat_out : Stability correction factor for heat.
+    """
+    zepsec = 0.028
+    zcons17 = 1.0 / c.ckap**2
+
+    mwind = max(mwind, min_wind_threshold)
+    z_mc = dz
+
+    RIB = c.grav * (thetam1 - theta_sfc) * (z_mc - rough_m) / (theta_sfc * mwind**2)
+    tcn_mom = (c.ckap / np.log(z_mc / rough_m))**2
+    tcm = tcn_mom * stability_function_mom(RIB, z_mc / rough_m, tcn_mom)
+    stab_func_mom_out = stability_function_mom(RIB, z_mc / rough_m, tcn_mom)
+    
+    tcn_heat = c.ckap**2 / (np.log(z_mc / rough_m)**2)
+    tch = tcn_heat * stability_function_heat(RIB, z_mc / rough_m, tcn_heat)
+    stab_funkheat_out = stability_function_heat(RIB, z_mc / rough_m, tcn_heat)
+    
+    for itr in range(5):
+        shfl_local = tch * mwind * (theta_sfc - thetam1)
+        lhfl_local = tch * mwind * (qsat_sfc - pqm1)
+        bflx1 = shfl_local + (c.vtmpc1 * theta_sfc * lhfl_local)
+        ustar = np.sqrt(tcm) * mwind
+
+        obukhov_length = -ustar**3 * theta_sfc * c.rgrav / (c.ckap * bflx1)
+
+        inv_bus_mom = 1.0 / businger_mom(rough_m, z_mc, obukhov_length)
+        tch = inv_bus_mom / businger_heat(rough_m, z_mc, obukhov_length)
+        tcm = inv_bus_mom**2
+
+    cH = tch * scaling_func(mwind, scaling_factor, threshold_value)
+    cD = tcm
+    cH_neutral = c.ckap / max(zepsec, np.sqrt(tcn_heat))
+    cD_neutral = c.ckap / max(zepsec, np.sqrt(tcn_mom))
+
+    return cD, cH, cD_neutral, cH_neutral, RIB, mwind, stab_func_mom_out, stab_funkheat_out
+
+def scaling_func(x, scaling_factor, threshold_value):
+    """
+    Smooth quadratic scaling below a wind threshold. If scaling_factor == 1.0,
+    the function always returns 1 (no scaling applied).
+
+    This function returns a modified value based on the distance of `x` to a threshold.
+    It smoothly increases the output from 1 to `scaling_factor` as `x` decreases from
+    `threshold_value` to 0. For values above the threshold, the result is 1.
+
+    Parameters
+    ----------
+    x : float
+        Input value to be scaled.
+    scaling_factor : float
+        Maximum scaling factor applied when x = 0.
+    threshold_value : float
+        Value above which no scaling is applied.
+
+    Returns
+    -------
+    float
+        The scaled output between 1 and `scaling_factor`, depending on x.
+    """
+    if scaling_factor == 1.0:
+        return 1.0
+    if 0 <= x <= threshold_value:
+        return 1 + (scaling_factor - 1) * ((threshold_value - x) / threshold_value) ** 2
+    else:
+        return 1.0
+

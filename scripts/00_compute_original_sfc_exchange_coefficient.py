@@ -66,7 +66,7 @@ plt.rcParams["xtick.labelsize"] = SIZE
 plt.rcParams["ytick.labelsize"] = SIZE
 plt.rcParams["font.size"] = SIZE
 fig = plt.figure(figsize=(15, 18), facecolor="w", edgecolor="k")
-fig.suptitle(f'Forward:\n ICON "sfc_exchange_coefficients" Routine', y=0.94)
+fig.suptitle(f'Forward:\n Original ICON "sfc_exchange_coefficients" Routine', y=0.94)
 
 G = gridspec.GridSpec(4, 2, hspace=0.5, wspace=0.3)
 
@@ -258,7 +258,7 @@ ax8.legend(loc="upper center", bbox_to_anchor=(-0.15, -0.4), fancybox=True, shad
 
 #plt.tight_layout()
 
-filename = f'00_components_of_subroutine.png'
+filename = f'00.0_components_of_subroutine.png'
 plt.savefig('figs/'+filename, facecolor='white', bbox_inches='tight')
 
 plt.show()
@@ -268,7 +268,7 @@ plt.show()
 cD_diag_1MIN = (results['1MIN']['tau'])**(0.5) / mwind_values #mwind_out_array
 cD_diag_4MIN = (results['4MIN']['tau'])**(0.5) / mwind_values #mwind_out_array_4MIN
 fig = plt.figure(figsize=(15, 10), facecolor="w", edgecolor="k")
-fig.suptitle(f'Forward:\n ICON "sfc_exchange_coefficients" Routine', y=1)
+fig.suptitle(f'Forward:\n Original ICON "sfc_exchange_coefficients" Routine', y=1)
 
 G = gridspec.GridSpec(2, 2, hspace=0.5, wspace=0.3)
 
@@ -367,7 +367,7 @@ ax.annotate('4', xy=(0, 1), xycoords='axes fraction', fontsize=20, fontweight='b
 
 #plt.tight_layout()
 
-filename = f'01_cD_vs_tau.png'
+filename = f'00.1_cD_vs_tau.png'
 plt.savefig('figs/'+filename, facecolor='white', bbox_inches='tight')
 
 plt.show()
