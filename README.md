@@ -64,6 +64,16 @@ This script loops over a range of wind speeds, calculates exchange coefficients,
 
 ---
 
+## Relevant Literature
+
+- **Kitamura, Y., & Ito, J. (2016)**  
+  [*Revisiting the Bulk Relation for Heat Flux in the Free Convection Limit*](https://doi.org/10.1007/s10546-015-0075-z), *Boundary-Layer Meteorology*, 158, 93–103.
+
+- **Zeng, X., Zhang, Q., Johnson, D., & Tao, W. (2002)**  
+  [*Parameterization of Wind Gustiness for the Computation of Ocean Surface Fluxes at Different Spatial Scales*](https://doi.org/10.1175/1520-0493(2002)130<2125:POWGFT>2.0.CO;2), *Monthly Weather Review*, 130, 2125–2133.
+
+---
+
 ## Contact
 
 For questions or feedback, please open an issue [here in this repository](https://github.com/mariuswinkler/Winkler_et_al_ICON_Surface_Exchange_paper_2025/issues).
