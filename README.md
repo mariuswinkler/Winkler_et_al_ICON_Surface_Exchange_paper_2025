@@ -1,7 +1,5 @@
-
-mwind in ICON: https://gitlab.dkrz.de/icon/icon-mpim/-/blob/master/src/atm_phy_aes/tmx/mo_vdf_diag_smag.f90#L162
-
-# ICON Surface Exchange Coefficients – Winkler et al. (2025)
+# ICON Surface Exchange Coefficients
+# Winkler et al. (2025)
 
 This repository contains the code and routines of the parameterization of surface exchange coefficients in the ICON atmospheric model. The core function implemented here is a Python version of the `sfc_exchange_coefficients` routine used in ICON.
 

@@ -1,4 +1,3 @@
-#%%
 # Functions
 
 import numpy as np
@@ -75,7 +74,7 @@ def sfc_exchange_coefficients(dz, pqm1, thetam1, mwind, rough_m, theta_sfc, qsat
     zcons17 = 1.0 / c.ckap**2
 
     mwind = max(mwind, min_wind_threshold)
-
+    #mwind in ICON: https://gitlab.dkrz.de/icon/icon-mpim/-/blob/master/src/atm_phy_aes/tmx/mo_vdf_diag_smag.f90#L162
     z_mc = dz
     # First guess for tch and tcm using bulk approach
     RIB = c.grav * (thetam1 - theta_sfc) * (z_mc - rough_m) / (theta_sfc * mwind**2)
