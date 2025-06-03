@@ -66,7 +66,7 @@ This script loops over a range of wind speeds, calculates exchange coefficients,
 
 ## Relevant Literature
 
-- - **Segura, H. et al. (2024)**  
+- **Segura, H. et al. (2024)**  
   [*A single tropical rainbelt in global storm-resolving models: the role of surface heat fluxes over the warm pool*](https://doi.org/10.22541/essoar.173482210.07670254/v1), *ESS Open Archive*. December 21, 2024.
 
 - **Kitamura, Y., & Ito, J. (2016)**  
