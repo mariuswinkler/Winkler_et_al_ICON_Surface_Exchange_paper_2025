@@ -1,5 +1,4 @@
-# ICON Surface Exchange Coefficients
-# Winkler et al. (2025)
+## ICON Surface Exchange Coefficients (Winkler et al., 2025 [in prep])
 
 This repository contains the code and routines of the parameterization of surface exchange coefficients in the ICON atmospheric model. The core function implemented here is a Python version of the `sfc_exchange_coefficients` routine used in ICON.
 
