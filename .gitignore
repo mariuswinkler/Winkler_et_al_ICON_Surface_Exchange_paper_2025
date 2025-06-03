@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Jupyter Notebook 
+.ipynb_checkpoints/
+*.ipynb
+
+# VS Code settings
+.vscode/
+
+# macOS metadata
+.DS_Store

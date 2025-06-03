@@ -1,0 +1,9 @@
+name: ICON_sfc_exchange_coefficients
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - matplotlib
+  - pip
+  - ipykernel
