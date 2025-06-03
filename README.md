@@ -12,11 +12,9 @@ We recommend using **Micromamba** for managing dependencies. To create and activ
 # Create the environment from the environment.yml file
 micromamba create --file environment.yml
 
-# Activate the environment (replace 'icon_env' with your environment name if different)
-micromamba activate icon_env
+# Activate the environment
+micromamba activate ICON_sfc_exchange_coefficients
 ```
-
-> The environment name is already specified in `environment.yml`.
 
 ---
 
@@ -32,7 +30,7 @@ Located in [`src/functions.py`](src/functions.py), this function computes surfac
 ### Outputs:
 - `cD`, `cH`: Exchange coefficients for momentum and heat
 - `cD_neutral`, `cH_neutral`: Corresponding coefficients under neutral conditions
-- Diagnostic quantities like the Richardson number (RIB) and stability corrections
+- Diagnostic quantities like the Richardson number (RIB) and stability functions
 
 The function mirrors the iterative procedure found in the ICON routine `sfc_exchange_coefficients` (see `icon-mpim/src/atm_phy_aes/tmx/mo_vdf_diag_smag.f90`) to resolve surface-layer fluxes under varying stability.
 
